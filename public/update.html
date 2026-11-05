@@ -1,0 +1,197 @@
+```html
+<!-- To update student data -->
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Update Student</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<h1>UPDATE STUDENT</h1>
+<hr>
+
+<a href="index.html">Home</a> |
+<a href="list.html">List Students</a> |
+<a href="listOne.html">List Required Student</a> |
+<a href="insert.html">Insert Student</a> |
+<a href="update.html">Update Student</a> |
+<a href="delete.html">Delete Student</a>
+
+<hr>
+
+Student Number
+
+<select id="sno">
+    <option value="">-- Select Student --</option>
+</select>
+
+<br><br>
+
+Student Name
+
+<input type="text" id="name">
+
+<br><br>
+
+Total
+
+<input type="number" id="total">
+
+<br><br>
+
+<button onclick="getStudent()">Get Student</button>
+
+<button onclick="updateStudent()">Update</button>
+
+<br><br>
+
+<button onclick="location.href='index.html'">
+    Home Page
+</button>
+
+
+<script>
+
+// Load students into dropdown
+function loadStudents()
+{
+    fetch("/students")
+
+    .then(response => response.json())
+
+    .then(students => {
+
+        let dropdown = document.getElementById("sno");
+
+        students.forEach(student => {
+
+            let option = document.createElement("option");
+
+            // Actual student ID from MySQL
+            option.value = student.student_id;
+
+            // Display ID and name
+            option.textContent =
+                student.student_id + " - " + student.student_name;
+
+            dropdown.appendChild(option);
+
+        });
+
+    })
+
+    .catch(error => {
+
+        console.log(error);
+        alert("Unable to load students");
+
+    });
+}
+
+
+// Get selected student's details
+function getStudent()
+{
+    let sno = document.getElementById("sno").value;
+
+    if(sno === "")
+    {
+        alert("Please select a student");
+        return;
+    }
+
+    fetch("/students/" + sno)
+
+    .then(response => response.json())
+
+    .then(data => {
+
+        if(data.length == 0)
+        {
+            alert("Student Not Found");
+            return;
+        }
+
+        document.getElementById("name").value =
+            data[0].student_name;
+
+        document.getElementById("total").value =
+            data[0].total;
+
+    })
+
+    .catch(error => {
+
+        console.log(error);
+        alert("Error while getting student");
+
+    });
+}
+
+
+// Update selected student
+function updateStudent()
+{
+    let sno = document.getElementById("sno").value;
+    let name = document.getElementById("name").value;
+    let total = document.getElementById("total").value;
+
+    if(sno === "")
+    {
+        alert("Please select a student");
+        return;
+    }
+
+    fetch("/students/" + sno, {
+
+        method: "PUT",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            name: name,
+            total: total
+        })
+
+    })
+
+    .then(response => {
+
+        if(response.ok)
+            return response.text();
+
+        return response.text().then(message => {
+            throw new Error(message);
+        });
+
+    })
+
+    .then(message => {
+
+        alert(message);
+
+        location.href = "index.html";
+
+    })
+
+    .catch(error => {
+
+        alert(error.message);
+
+    });
+}
+
+
+// Load students when page opens
+loadStudents();
+
+</script>
+
+</body>
+</html>
+```

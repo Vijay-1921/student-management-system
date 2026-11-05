@@ -1,0 +1,147 @@
+```html
+<!-- To list one student data -->
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Search Student</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<h1>SEARCH STUDENT</h1>
+<hr>
+
+<a href="index.html">Home</a> |
+<a href="list.html">List Students</a> |
+<a href="listOne.html">List Required Student</a> |
+<a href="insert.html">Insert Student</a> |
+<a href="update.html">Update Student</a> |
+<a href="delete.html">Delete Student</a>
+
+<hr>
+
+Student Number
+
+<select id="sno">
+    <option value="">-- Select Student --</option>
+</select>
+
+<button onclick="searchStudent()">Search</button>
+
+<br><br>
+
+<table border="1" id="studentTable">
+
+<tr>
+    <th>Student Number</th>
+    <th>Name</th>
+    <th>Total</th>
+</tr>
+
+</table>
+
+<br>
+
+<button onclick="location.href='index.html'">
+    Home Page
+</button>
+
+
+<script>
+
+// Load students from MySQL into dropdown
+function loadStudents()
+{
+    fetch("/students")
+    .then(response => response.json())
+    .then(students => {
+
+        let dropdown = document.getElementById("sno");
+
+        students.forEach(student => {
+
+            let option = document.createElement("option");
+
+            // Actual student ID from MySQL
+            option.value = student.student_id;
+
+            // Display ID and name
+            option.textContent =
+                student.student_id + " - " + student.student_name;
+
+            dropdown.appendChild(option);
+
+        });
+
+    })
+    .catch(error => {
+
+        console.log(error);
+        alert("Unable to load students");
+
+    });
+}
+
+
+// Search selected student
+function searchStudent()
+{
+    let sno = document.getElementById("sno").value;
+
+    if(sno === "")
+    {
+        alert("Please select a student");
+        return;
+    }
+
+    fetch("/students/" + sno)
+
+    .then(response => response.json())
+
+    .then(data => {
+
+        if(data.length == 0)
+        {
+            alert("Student Not Found");
+            return;
+        }
+
+        let table = document.getElementById("studentTable");
+
+        table.innerHTML = `
+
+        <tr>
+            <th>Student Number</th>
+            <th>Name</th>
+            <th>Total</th>
+        </tr>
+
+        <tr>
+            <td>${data[0].student_id}</td>
+            <td>${data[0].student_name}</td>
+            <td>${data[0].total}</td>
+        </tr>
+
+        `;
+
+    })
+
+    .catch(error => {
+
+        console.log(error);
+        alert("Error while searching student");
+
+    });
+}
+
+
+// Load dropdown when page opens
+loadStudents();
+
+</script>
+
+</body>
+</html>
+```
